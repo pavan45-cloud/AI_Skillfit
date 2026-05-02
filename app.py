@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# DB CONFIG
+# DB
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     "DATABASE_URL",
     "postgresql://aiskillfit_user:lP8AMeSqL7eEdOmJcs57uoLGWWlOx1hY@dpg-d7r39jcm0tmc7382ni50-a.oregon-postgres.render.com/aiskillfit"
@@ -19,26 +19,25 @@ app.config['SECRET_KEY'] = "secretkey"
 
 db.init_app(app)
 
-# LOGIN SYSTEM
+# LOGIN
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"   # ⭐ FIX IMPORTANT
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Upload folder
+# upload folder
 UPLOAD_FOLDER = "uploads"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-# Create tables
+# DB init
 with app.app_context():
     db.create_all()
 
-# Whisper lazy load
+# lazy whisper
 model = None
 
 def load_model():
@@ -49,10 +48,10 @@ def load_model():
     return model
 
 
-# HOME
+# HOME → redirect login
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect('/login')
 
 
 # SIGNUP
@@ -69,6 +68,7 @@ def signup():
         db.session.add(user)
         db.session.commit()
         return redirect('/login')
+
     return render_template('signup.html')
 
 
@@ -83,13 +83,14 @@ def login():
 
             if user.role == "admin":
                 return redirect('/admin')
-            else:
-                return redirect('/dashboard')
+            return redirect('/dashboard')
+
+        return "Invalid login"
 
     return render_template('login.html')
 
 
-# DASHBOARD (USER)
+# DASHBOARD
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -104,19 +105,18 @@ def admin():
     if current_user.role != "admin":
         return "Access denied"
 
-    users = User.query.all()
-    data = Candidate.query.all()
+    return render_template('admin.html',
+                           users=User.query.all(),
+                           data=Candidate.query.all())
 
-    return render_template('admin.html', users=users, data=data)
 
-
-# UPLOAD VIDEO
+# UPLOAD
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload():
     file = request.files['video']
 
-    path = os.path.join(app.config['UPLOAD_FOLDER'], "video.webm")
+    path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_user.id}.webm")
     file.save(path)
 
     m = load_model()
