@@ -2,21 +2,25 @@
 <html>
 <head>
     <title>AI SkillFit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body style="text-align:center; margin-top:100px;">
 
-<h1>Welcome to AI SkillFit</h1>
-<p>Your smart interview evaluation system</p>
+<body>
 
-<br>
+<div class="header">
+    <h1>AI SkillFit</h1>
+    <p>AI Based Interview Skill Evaluation System</p>
+</div>
 
-<a href="/signup">
-    <button>Signup</button>
-</a>
+<div class="container">
+    <h2>Welcome</h2>
+    <p>Please login or create an account</p>
 
-<a href="/login">
-    <button>Login</button>
-</a>
+    <div class="buttons">
+        <a href="/signup" class="btn signup-btn">Sign Up</a>
+        <a href="/login" class="btn login-btn">Login</a>
+    </div>
+</div>
 
 </body>
 </html>

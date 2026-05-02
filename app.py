@@ -8,7 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# DB
+# =========================
+# DATABASE CONFIG
+# =========================
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     "DATABASE_URL",
     "postgresql://aiskillfit_user:lP8AMeSqL7eEdOmJcs57uoLGWWlOx1hY@dpg-d7r39jcm0tmc7382ni50-a.oregon-postgres.render.com/aiskillfit"
@@ -19,42 +21,55 @@ app.config['SECRET_KEY'] = "secretkey"
 
 db.init_app(app)
 
-# LOGIN
+# =========================
+# LOGIN MANAGER
+# =========================
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"   # ⭐ FIX IMPORTANT
+login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# upload folder
+# =========================
+# UPLOAD FOLDER
+# =========================
 UPLOAD_FOLDER = "uploads"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# DB init
+# =========================
+# CREATE TABLES
+# =========================
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print("DB error:", e)
 
-# lazy whisper
-model = None
+# =========================
+# WHISPER MODEL (LAZY LOAD)
+# =========================
+# model = None
 
-def load_model():
-    global model
-    if model is None:
-        import whisper
-        model = whisper.load_model("tiny")
-    return model
+# def load_model():
+#     global model
+#     if model is None:
+#         import whisper
+#         model = whisper.load_model("tiny")
+#     return model
 
-
-# HOME → redirect login
+# =========================
+# HOME PAGE (ONLY ONE ROUTE)
+# =========================
 @app.route('/')
 def index():
-    return redirect('/login')
+    return render_template('index.html')
 
-
+# =========================
 # SIGNUP
+# =========================
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -71,8 +86,9 @@ def signup():
 
     return render_template('signup.html')
 
-
+# =========================
 # LOGIN
+# =========================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -83,34 +99,42 @@ def login():
 
             if user.role == "admin":
                 return redirect('/admin')
-            return redirect('/dashboard')
+            else:
+                return redirect('/dashboard')
 
-        return "Invalid login"
+        return "Invalid login credentials"
 
     return render_template('login.html')
 
-
-# DASHBOARD
+# =========================
+# USER DASHBOARD
+# =========================
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    if current_user.role != "user":
+        return "Access denied"
+
     data = Candidate.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', data=data)
 
-
-# ADMIN
+# =========================
+# ADMIN DASHBOARD
+# =========================
 @app.route('/admin')
 @login_required
 def admin():
     if current_user.role != "admin":
         return "Access denied"
 
-    return render_template('admin.html',
-                           users=User.query.all(),
-                           data=Candidate.query.all())
+    users = User.query.all()
+    data = Candidate.query.all()
 
+    return render_template('admin.html', users=users, data=data)
 
-# UPLOAD
+# =========================
+# UPLOAD VIDEO
+# =========================
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload():
@@ -123,7 +147,7 @@ def upload():
     text = m.transcribe(path)["text"]
 
     skill = 5
-    confidence = min(len(text)/100, 100)
+    confidence = min(len(text) / 100, 100)
 
     new_data = Candidate(
         user_id=current_user.id,
@@ -138,19 +162,18 @@ def upload():
 
     return redirect('/dashboard')
 
-
-# RESULTS
+# =========================
+# RESULTS PAGE
+# =========================
 @app.route('/results')
 @login_required
 def results():
     data = Candidate.query.filter_by(user_id=current_user.id).all()
     return render_template('results.html', data=data)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-# RUN
+# =========================
+# RUN APP
+# =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
