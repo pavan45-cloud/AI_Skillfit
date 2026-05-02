@@ -1,52 +1,65 @@
 from flask import Flask, render_template, request
 import os
-import whisper
 from models import db, Candidate
 
 app = Flask(__name__)
 
-# ✅ PostgreSQL connection (Render)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://aiskillfit_user:lP8AMeSqL7eEdOmJcs57uoLGWWlOx1hY@dpg-d7r39jcm0tmc7382ni50-a.oregon-postgres.render.com/aiskillfit'
+# ✅ PostgreSQL (Render)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    "DATABASE_URL",
+    "postgresql://aiskillfit_user:lP8AMeSqL7eEdOmJcs57uoLGWWlOx1hY@dpg-d7r39jcm0tmc7382ni50-a.oregon-postgres.render.com/aiskillfit"
+)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Upload folder
-app.config['UPLOAD_FOLDER'] = 'uploads'
+UPLOAD_FOLDER = "uploads"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Ensure upload folder exists
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Initialize DB
 db.init_app(app)
 
-# ✅ safer table creation (Render-friendly)
+# ❌ DO NOT use db.create_all() directly on Render startup
+# safer way:
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print("DB init skipped:", e)
 
-# Load Whisper model once
-model = whisper.load_model("base")
+# ❌ REMOVE whisper load at startup (causes memory crash)
+model = None
 
-# Home page
+# Try loading whisper only when needed
+def load_model():
+    global model
+    if model is None:
+        import whisper
+        model = whisper.load_model("tiny")  # ✅ lighter model for Render
+    return model
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Upload route
+
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['video']
 
-    # Save file
-    path = os.path.join(app.config['UPLOAD_FOLDER'], 'video.webm')
+    path = os.path.join(app.config['UPLOAD_FOLDER'], "video.webm")
     file.save(path)
 
-    # Convert video to text
-    text = convert_to_text(path)
+    # Load whisper only here
+    m = load_model()
+    text = m.transcribe(path)["text"]
 
-    # Evaluate
     skill, confidence = evaluate(text)
 
-    # Save to PostgreSQL
     new_data = Candidate(
         name="User",
         transcript=text,
@@ -59,12 +72,7 @@ def upload():
 
     return "Saved successfully"
 
-# Convert video to text
-def convert_to_text(video_path):
-    result = model.transcribe(video_path)
-    return result["text"]
 
-# Simple evaluation logic
 def evaluate(text):
     score = 0
 
@@ -76,15 +84,16 @@ def evaluate(text):
         score += 3
 
     confidence = min(len(text) / 100, 1.0) * 100
-
     return score, confidence
 
-# Results page
+
 @app.route('/results')
 def results():
     data = Candidate.query.all()
     return render_template('results.html', data=data)
 
-# Run app
-if __name__ == '__main__':
-    app.run(debug=True)
+
+# ✅ REQUIRED for Render
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
