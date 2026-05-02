@@ -146,6 +146,9 @@ def results():
     data = Candidate.query.filter_by(user_id=current_user.id).all()
     return render_template('results.html', data=data)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # RUN
 if __name__ == "__main__":
