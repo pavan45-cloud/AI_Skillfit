@@ -4,7 +4,12 @@ import whisper
 from models import db, Candidate
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://ai_skillfit_user:nYMruzfrsXJ3SkSCnv9SVeaR85680nf3@dpg-d7r2mef7f7vs73cm42e0-a.oregon-postgres.render.com/ai_skillfit"
+
+# ✅ PostgreSQL connection (Render)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://aiskillfit_user:lP8AMeSqL7eEdOmJcs57uoLGWWlOx1hY@dpg-d7r39jcm0tmc7382ni50-a.oregon-postgres.render.com/aiskillfit'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Upload folder
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
 # Ensure upload folder exists
@@ -14,6 +19,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 # Initialize DB
 db.init_app(app)
 
+# ✅ safer table creation (Render-friendly)
 with app.app_context():
     db.create_all()
 
@@ -30,17 +36,17 @@ def index():
 def upload():
     file = request.files['video']
 
-    # ✅ use webm (important)
+    # Save file
     path = os.path.join(app.config['UPLOAD_FOLDER'], 'video.webm')
     file.save(path)
 
-    # Convert to text
+    # Convert video to text
     text = convert_to_text(path)
 
     # Evaluate
     skill, confidence = evaluate(text)
 
-    # Save to DB
+    # Save to PostgreSQL
     new_data = Candidate(
         name="User",
         transcript=text,
@@ -51,14 +57,14 @@ def upload():
     db.session.add(new_data)
     db.session.commit()
 
-    return "Saved"
+    return "Saved successfully"
 
 # Convert video to text
 def convert_to_text(video_path):
     result = model.transcribe(video_path)
     return result["text"]
 
-# Simple scoring
+# Simple evaluation logic
 def evaluate(text):
     score = 0
 
@@ -79,5 +85,6 @@ def results():
     data = Candidate.query.all()
     return render_template('results.html', data=data)
 
+# Run app
 if __name__ == '__main__':
     app.run(debug=True)
