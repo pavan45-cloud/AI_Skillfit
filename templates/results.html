@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+</head>
+<body>
+
+<h2>Candidate Results</h2>
+
+{% for c in data %}
+<p><b>Name:</b> {{ c.name }}</p>
+<p><b>Transcript:</b> {{ c.transcript }}</p>
+<p><b>Skill Score:</b> {{ c.skill_score }}</p>
+<p><b>Confidence:</b> {{ c.confidence_score }}</p>
+<hr>
+{% endfor %}
+
+</body>
+</html>
