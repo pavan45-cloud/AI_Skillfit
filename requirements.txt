@@ -1,7 +1,7 @@
 Flask
 flask_sqlalchemy
 pymysql
+psycopg2-binary
 openai-whisper
 torch
 gunicorn
-psycopg2-binary
