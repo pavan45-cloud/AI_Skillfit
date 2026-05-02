@@ -1,0 +1,12 @@
+<h2>User Dashboard</h2>
+
+<form action="/upload" method="POST" enctype="multipart/form-data">
+<input type="file" name="video">
+<button type="submit">Upload</button>
+</form>
+
+{% for c in data %}
+<p>{{ c.transcript }}</p>
+<p>{{ c.skill_score }}</p>
+<hr>
+{% endfor %}
