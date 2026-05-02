@@ -4,8 +4,7 @@ import whisper
 from models import db, Candidate
 
 app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Hemapavan182%40@localhost/skillfit'
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://ai_skillfit_user:nYMruzfrsXJ3SkSCnv9SVeaR85680nf3@dpg-d7r2mef7f7vs73cm42e0-a.oregon-postgres.render.com/ai_skillfit"
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
 # Ensure upload folder exists

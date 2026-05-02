@@ -1,0 +1,7 @@
+Flask
+flask_sqlalchemy
+pymysql
+openai-whisper
+torch
+gunicorn
+psycopg2-binary
