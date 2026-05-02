@@ -1,0 +1,6 @@
+Flask
+flask_sqlalchemy
+pymysql
+openai-whisper
+torch
+gunicorn
