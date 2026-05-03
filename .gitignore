@@ -1,0 +1,4 @@
+instance/
+*.db
+uploads/
+__pycache__/
