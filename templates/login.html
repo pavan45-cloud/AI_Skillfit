@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Results</title>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<h2>Candidate Results</h2>
+<div class="container">
+    <div class="card">
+        <h2>Login</h2>
 
-{% for c in data %}
-<p><b>Name:</b> {{ c.name }}</p>
-<p><b>Transcript:</b> {{ c.transcript }}</p>
-<p><b>Skill Score:</b> {{ c.skill_score }}</p>
-<p><b>Confidence:</b> {{ c.confidence_score }}</p>
-<hr>
-{% endfor %}
+        <form method="POST">
+            <input name="email" placeholder="Email"><br>
+            <input name="password" type="password" placeholder="Password"><br>
+            <button type="submit">Login</button>
+        </form>
+
+        <p>Don't have account? <a href="/signup">Signup</a></p>
+    </div>
+</div>
 
 </body>
 </html>

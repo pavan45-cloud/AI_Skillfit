@@ -3,7 +3,5 @@ Flask-SQLAlchemy
 Flask-Login
 gunicorn
 psycopg2-binary
-pymysql
 Werkzeug
-openai-whisper
-torch
+python-dotenv

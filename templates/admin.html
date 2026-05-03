@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Admin Dashboard</h2>
+
+    <div class="card">
+        <h3>Filter Candidates</h3>
+
+        <form method="GET">
+            <input name="skill" placeholder="Min Skill Score"><br>
+            <input name="trust" placeholder="Min Trust Score"><br>
+            <button type="submit">Apply Filter</button>
+        </form>
+    </div>
+
+    <h3>Users</h3>
+    {% for u in users %}
+    <div class="result">
+        {{ u.name }} - {{ u.email }}
+    </div>
+    {% endfor %}
+
+    <h3>Candidates</h3>
+    {% for c in data %}
+    <div class="result">
+        <p>{{ c.name }} | Skill: {{ c.skill_score }} | Trust: {{ c.trust_score }}</p>
+        <p>Status: {{ c.status }}</p>
+        <p>Resume: <a href="/{{ c.user.resume }}" target="_blank">View</a></p>
+
+        {% if c.trust_score < 60 %}
+        <p class="fraud">⚠ Fraud Risk</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+
+        <h2>Apply for Job</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <!-- BASIC -->
+            <input name="name" placeholder="Full Name" required><br>
+            <input name="phone" placeholder="Phone Number" required><br>
+            <input name="email" placeholder="Email" required><br>
+            <input name="dob" placeholder="Date of Birth"><br>
+
+            <!-- LOCATION -->
+            <input name="district" placeholder="District"><br>
+            <input name="state" placeholder="State"><br>
+            <input name="address" placeholder="Address"><br>
+
+            <!-- EDUCATION -->
+            <input name="education" placeholder="Highest Qualification"><br>
+            <input name="field" placeholder="Field (ITI/Diploma/etc)"><br>
+
+            <!-- SKILLS -->
+            <input name="skill" placeholder="Primary Skill"><br>
+            <input name="experience" placeholder="Experience (years)"><br>
+
+            <!-- LANGUAGE -->
+            <select name="language">
+                <option>Kannada</option>
+                <option>Hindi</option>
+                <option>English</option>
+            </select><br><br>
+
+            <!-- RESUME UPLOAD -->
+            <label>Upload Resume (PDF/DOC):</label><br>
+            <input type="file" name="resume"><br><br>
+
+            <button type="submit">Submit Application</button>
+
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>

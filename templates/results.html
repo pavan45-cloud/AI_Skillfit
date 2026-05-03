@@ -2,18 +2,26 @@
 <html>
 <head>
     <title>Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<h2>Candidate Results</h2>
+<div class="container">
+    <h2>Interview Results</h2>
 
-{% for c in data %}
-<p><b>Name:</b> {{ c.name }}</p>
-<p><b>Transcript:</b> {{ c.transcript }}</p>
-<p><b>Skill Score:</b> {{ c.skill_score }}</p>
-<p><b>Confidence:</b> {{ c.confidence_score }}</p>
-<hr>
-{% endfor %}
+    {% for c in data %}
+    <div class="result">
+        <p><b>Name:</b> {{ c.name }}</p>
+        <p><b>Transcript:</b> {{ c.transcript }}</p>
+        <p><b>Skill Score:</b> {{ c.skill_score }}/10</p>
+        <p><b>Confidence:</b> {{ c.confidence_score }}%</p>
+        <p><b>Trust:</b> {{ c.trust_score }}</p>
+        <p><b>Status:</b> {{ c.status }}</p>
+        <p><b>Recommendation:</b> {{ c.recommendation }}</p>
+    </div>
+    {% endfor %}
+
+</div>
 
 </body>
 </html>

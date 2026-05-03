@@ -1,12 +1,36 @@
-<h2>User Dashboard</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
 
-<form action="/upload" method="POST" enctype="multipart/form-data">
-<input type="file" name="video">
-<button type="submit">Upload</button>
-</form>
+<div class="container">
 
-{% for c in data %}
-<p>{{ c.transcript }}</p>
-<p>{{ c.skill_score }}</p>
-<hr>
-{% endfor %}
+    <h2>AI Interview</h2>
+
+    <div class="card">
+        <p><b>AI:</b> Tell me about your skills and experience</p>
+
+        <video id="preview" autoplay width="300"></video><br><br>
+
+        <button onclick="startRecording()">Start</button>
+        <button onclick="stopRecording()">Stop</button>
+    </div>
+
+    <h3>Your Results</h3>
+
+    {% for c in data %}
+    <div class="result">
+        <p><b>Skill:</b> {{ c.skill_score }}</p>
+        <p><b>Status:</b> {{ c.status }}</p>
+    </div>
+    {% endfor %}
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>
