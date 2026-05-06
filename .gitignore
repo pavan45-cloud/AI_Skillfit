@@ -1,4 +1,28 @@
-instance/
-*.db
-uploads/
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+tts_env/
+
+# Database
+*.db
+instance/
+
+# Uploads / media
+uploads/
+static/audio/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Video files (important)
+*.mp4
+*.webm
